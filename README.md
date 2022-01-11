@@ -1,1 +1,2 @@
 # HslColor
+HSL color class
