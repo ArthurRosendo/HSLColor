@@ -1,0 +1,15 @@
+D:\Users\Arthur\Documents\Projects\HslColor\bin\Debug\net6.0\HslColor.exe
+D:\Users\Arthur\Documents\Projects\HslColor\bin\Debug\net6.0\HslColor.deps.json
+D:\Users\Arthur\Documents\Projects\HslColor\bin\Debug\net6.0\HslColor.runtimeconfig.json
+D:\Users\Arthur\Documents\Projects\HslColor\bin\Debug\net6.0\HslColor.dll
+D:\Users\Arthur\Documents\Projects\HslColor\bin\Debug\net6.0\ref\HslColor.dll
+D:\Users\Arthur\Documents\Projects\HslColor\bin\Debug\net6.0\HslColor.pdb
+D:\Users\Arthur\Documents\Projects\HslColor\obj\Debug\net6.0\HslColor.csproj.AssemblyReference.cache
+D:\Users\Arthur\Documents\Projects\HslColor\obj\Debug\net6.0\HslColor.GeneratedMSBuildEditorConfig.editorconfig
+D:\Users\Arthur\Documents\Projects\HslColor\obj\Debug\net6.0\HslColor.AssemblyInfoInputs.cache
+D:\Users\Arthur\Documents\Projects\HslColor\obj\Debug\net6.0\HslColor.AssemblyInfo.cs
+D:\Users\Arthur\Documents\Projects\HslColor\obj\Debug\net6.0\HslColor.csproj.CoreCompileInputs.cache
+D:\Users\Arthur\Documents\Projects\HslColor\obj\Debug\net6.0\HslColor.dll
+D:\Users\Arthur\Documents\Projects\HslColor\obj\Debug\net6.0\ref\HslColor.dll
+D:\Users\Arthur\Documents\Projects\HslColor\obj\Debug\net6.0\HslColor.pdb
+D:\Users\Arthur\Documents\Projects\HslColor\obj\Debug\net6.0\HslColor.genruntimeconfig.cache
