@@ -26,6 +26,10 @@ namespace HSL
             double[] red = HslColor.HSLToRGB(c1);
             doubleArrayOutput(red);
 
+            c1.fromRGBA(red);
+            c1.getSRGBA();
+            Console.WriteLine(c1.ToString());
+
             return;
         }
 

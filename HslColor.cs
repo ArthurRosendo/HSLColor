@@ -7,15 +7,15 @@ public class HslColor
 {
     //Predefined colors for convenience sake
     public readonly static HslColor black = new HslColor(0.0, 0.0, 0.0, 1.0);
-    public readonly static HslColor grey = new HslColor(0.0, 0.0, 0.5, 1.0);
-    public readonly static HslColor gray = grey;
+    public readonly static HslColor gray = new HslColor(0.0, 0.0, 0.5, 1.0); // 50% gray
+    public readonly static HslColor grey = HslColor.gray; //Alias for gray
     public readonly static HslColor white = new HslColor(0.0, 0.0, 1.0, 1.0);
-    public readonly static HslColor clear = new HslColor(0.0, 0.0, 0.0, 0.0);
+    public readonly static HslColor clear = new HslColor(0.0, 0.0, 0.0, 0.0); // 100% Transparent black (0% alpha)
     public readonly static HslColor red = new HslColor(0.0, 1.0, 0.5, 1.0);
     public readonly static HslColor green = new HslColor(120.0/360.0, 1.0, 0.5, 1.0);
     public readonly static HslColor blue = new HslColor(240.0/360.0, 1.0, 0.5, 1.0);
     public readonly static HslColor yellow = new HslColor(60.0/360.0, 1.0, 0.5, 1.0);
-    public readonly static HslColor cyan = new HslColor(180.0/360.0, 1.0, 0.5, 1.0);
+    public readonly static HslColor cyan = new HslColor(180.0/360.0, 1.0, 0.5, 1.0); //As in CMYK, light blue (голубой)
     public readonly static HslColor magenta = new HslColor(300.0/360.0, 1.0, 0.5, 1.0);
     
 
@@ -92,7 +92,6 @@ public class HslColor
         this.alpha = Math.Clamp(value, 0.0, 1.0);
     }
 
-
     /// <summary> Returns an array with the conponents of this HslColor  </summary>
     /// <returns>double[4] with the HSLA components of this object</returns>
     public double[] toArray(){
@@ -146,19 +145,95 @@ public class HslColor
     }
 
     /// <summary> Return the perceptual luminance of the color. (ITU BT.709) </summary>
+    /// The Luma differs from Luminance in that the Luma is calculated from the Gamma weighted (sRGB) values, while Luminance is from linear
     /// <returns>double - the luminance value</returns>
     public double getLuminance(){
-        double[] rgba = this.getRgba();
+        double[] rgba = this.getRGBA();
         double luminance = 0.2126*rgba[0]+0.7152*rgba[1]+0.0722*rgba[2];
         return luminance;
     }
 
-    //============================================ RGB ==============================================
+    /// <summary> Return the Luma of the color. (ITU BT.709) </summary>
+    /// The Luma differs from Luminance in that the Luma is calculated from the Gamma weighted (sRGB) values, while Luminance is from linear
+    /// <returns>double - the luminance value</returns>
+    public double getLuma(){
+        HslColor output = new HslColor();
+        output.fromRGBA( this.getSRGBA() );
+        return output.getLuminance();
+    }
+
+    #region === sRGB ===
+
+    /// <summary>
+    /// Returns the sRGBA value of this HSL color
+    /// </summary>
+    /// <returns>double[4] with sRGBA values</returns>
+    public double[] getSRGBA(){
+        double[] rgba = this.getRGBA();
+        double sr = sRGBComponent(rgba[0]);
+        double sg = sRGBComponent(rgba[1]);
+        double sb = sRGBComponent(rgba[2]);
+        //Alpha is linear, no need to be computed
+
+        return new HslColor(sr,sg,sb,this.alpha);
+    }
+
+    /// <summary>
+    /// Sets the value of this HslColor to the specified sRGBA color
+    /// </summary>
+    /// <param name="_srgba">the sRGBA color to set from. Must be a double[3] or double[4]</param>
+    public void fromSRGBA(double[] _srgba){
+        if(_srgba.Length == 4){
+            this.fromSRGBA(_srgba[0],_srgba[1],_srgba[2],_srgba[3]);
+        }else{
+            if(_srgba.Length == 3){
+                this.fromSRGBA(_srgba[0],_srgba[1],_srgba[2]);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Sets the value of this HslColor to the specified sRGBA color. If alpha is not specified then it is set to 1.0.
+    /// </summary>
+    /// <param name="_sr">red component of the sRGBA input</param>
+    /// <param name="_sg">green component of the sRGBA input</param>
+    /// <param name="_sb">blue component of the sRGBA input</param>
+    /// <param name="_a">Optional. The alpha component of the sRGBA input</param>
+    public void fromSRGBA(double _sr, double _sg, double _sb, double _a = 1.0){
+        double r = linearComponent(_sr);
+        double g = linearComponent(_sg);
+        double b = linearComponent(_sb);
+        double a = _a;
+
+        this.fromRGBA(r,g,b,a);
+    }
+
+    /// Converts given RGB component to sRGB
+    protected double sRGBComponent(double _component){
+        //Altenative cutoff value is 0.00313066844250063
+        if (_component <= 0.00031308)
+            return 12.92 * _component;
+        else
+            return 1.055*Math.Pow(_component,(1.0 / 2.4) ) - 0.055;
+    }
+
+    /// Converts given sRGB component to RGB
+    protected double linearComponent(double _weightedComponent){
+        //Alternative cutoff point 0.0404482362771082
+        if(_weightedComponent <= 0.04045){
+            return _weightedComponent/12.92;
+        }else{
+            return Math.Pow( (_weightedComponent+0.055)/1.055, 2.4 );
+        }
+    }
+    #endregion
+
+    #region === RGB  ===
 
     // HSL -> RGB
     /// <summary>  Converts from HSL to RGB as a array of double. The components are within the 0 to 1 range. </summary>
     /// <returns>double[4] with the RGBA components</returns>
-    public double[] getRgba(){
+    public double[] getRGBA(){
         
         double c = (1.0 - Math.Abs(2.0*this.l-1.0)) * this.s;
         double x = c * ( 1.0-Math.Abs((this.getHueAngle()/60.0)%2.0 - 1.0) );
@@ -203,12 +278,12 @@ public class HslColor
     }
 
     // RGB -> HSL
-    /// <summary> Sets this HSL color from the specified RGBA values. RGBA components must be between 0 and 1.  </summary>
+    /// <summary> Sets this HSL color from the specified RGBA values. If alpha is not specified then it is set to 1.0.  </summary>
     /// <param name="_r">Red component ∈ [0,1]</param>
     /// <param name="_g">Green component ∈ [0,1]</param>
     /// <param name="_b">Blue component ∈ [0,1]</param>
     /// <param name="_alpha">Alpha component ∈ [0,1]</param>
-    public void fromRgba(double _r, double _g, double _b,double _alpha = 1.0){
+    public void fromRGBA(double _r, double _g, double _b,double _alpha = 1.0){
         checkComponents(_r,_g,_b,_alpha, "HslColor.fromRgba()");
 
         double cmax =  Math.Max(Math.Max(_r,_g),_b);
@@ -240,14 +315,14 @@ public class HslColor
         this.alpha = _alpha;
     }
 
-    /// <summary> Sets this HSL color from the specified rgb values. RGBA components must be between 0 and 1. </summary>
+    /// <summary> Sets this HSL color from the specified rgb values. If alpha is not specified then it is set to 1.0.</summary>
     /// <param name="rgba">double[4] with all RGBA components between 0 and 1</param>
-    public void fromRgba(double[] rgba){
+    public void fromRGBA(double[] rgba){
         if(rgba.Length == 4){
-            this.fromRgba(rgba[0],rgba[1],rgba[2],rgba[3]);
+            this.fromRGBA(rgba[0],rgba[1],rgba[2],rgba[3]);
         }
         else if( rgba.Length == 3){
-            this.fromRgba(rgba[0],rgba[1],rgba[2]);
+            this.fromRGBA(rgba[0],rgba[1],rgba[2]);
         }else{
             throw new ArgumentException("Invalid argument for .fromRgba(). Argument must be double[4] or double[3].");
         }
@@ -258,20 +333,21 @@ public class HslColor
     public String getHex(){
         string outHex = "#";
 
-        double[] rgba = this.getRgba();
+        double[] rgba = this.getRGBA();
         for(int i=0; i<4;i++){
             outHex += (Convert.ToInt32(rgba[i]*255)).ToString("X2");
         }
         
         return outHex;
     }
+    #endregion
 
-    //==================================== HSV ==========================================
+    #region === HSV  ===
 
     // HSL -> HSV
     /// <summary> Converts from HSL to HSV as a array of double with the hsva components between 0.0 and 1.0]. </summary>
     /// <returns>double[4] with the components HSVA</returns>
-    public double[] getHsva(){
+    public double[] getHSVA(){
         double v = this.l+this.s*Math.Min(this.l,1-this.l);
         double sv;
         if(v == 0.0){
@@ -290,7 +366,7 @@ public class HslColor
     /// <param name="_s">HSV saturation ∈ [0,1]</param>
     /// <param name="_v">HSV value ∈ [0,1]</param>
     /// <param name="_alpha">alpha ∈ [0,1]. Optional, default is 1.0</param>
-    public void fromHsva(double _h,double _s,double _v, double _alpha = 1.0){
+    public void fromHSVA(double _h,double _s,double _v, double _alpha = 1.0){
         checkComponents(_h,_s,_v,_alpha, "HslColor.fromHsva()");
 
         this.h = _h;
@@ -308,15 +384,39 @@ public class HslColor
 
     /// <summary> Sets this color from a HSV input. The arguments must be in the following order: h, s, v, ?alpha </summary>
     /// <param name="hsva">double[4] or double[3] with HSVA or HSV components between 0 to 1</param>
-    public void fromHsva(double[] hsva){
+    public void fromHSVA(double[] hsva){
         if( hsva.Length == 4 ){
-            this.fromHsva(hsva[0],hsva[1],hsva[2],hsva[3]);
+            this.fromHSVA(hsva[0],hsva[1],hsva[2],hsva[3]);
         }else if( hsva.Length == 3){
-            this.fromHsva(hsva[0],hsva[1],hsva[2]);
+            this.fromHSVA(hsva[0],hsva[1],hsva[2]);
         }else{
             throw new ArgumentException("Invalid argument for .fromHsva(). Argument must be double[4] or double[3].");
         }
     }
+
+    //==================================== HSB (alias) ==========================================
+
+    /// <summary> Converts from HSL to HSB as a array of double with the hsva components between 0.0 and 1.0]. </summary>
+    /// <returns>double[4] with the components HSBA</returns>
+    public double[] getHSBA(){
+        return this.getHSVA();
+    }
+
+    /// <summary> Sets this color from a HSB input </summary>
+    /// <param name="_h">HSB hue ∈ [0,1]</param>
+    /// <param name="_s">HSB saturation ∈ [0,1]</param>
+    /// <param name="_b">HSB value ∈ [0,1]</param>
+    /// <param name="_alpha">alpha ∈ [0,1]. Optional, default is 1.0</param>
+    public void fromHSBA(double _h,double _s,double _b, double _alpha = 1.0){
+        this.fromHSVA(_h,_s,_b,_alpha);
+    }
+
+    /// <summary> Sets this color from a HSB input. The arguments must be in the following order: h, s, b, ?alpha </summary>
+    /// <param name="hsba">double[4] or double[3] with HSBA or HSB components between 0 to 1</param>
+    public void fromHSBA(double[] hsba){
+        this.fromHSVA(hsba);
+    }
+    #endregion
 
     //=================================== STATIC =============================================
 
@@ -350,16 +450,21 @@ public class HslColor
         return hslOut;
     }
 
-    //=============================== STATIC CONVERSION =======================================
+    #region === STATIC CONVERSION ===
 
     //HSL->HSV
     public static double[] HSLToHSV(HslColor input){
-        return input.getHsva();
+        return input.getHSVA();
     }
+    //HSB alias
+    public static double[] HSLToHSB(HslColor input){
+        return input.getHSVA();
+    }
+    
     //HSV->HSL
     public static HslColor HSVToHSL(double _h, double _s, double _v, double _alpha=1.0){
         HslColor color = new HslColor();
-        color.fromHsva(_h,_s,_v,_alpha);
+        color.fromHSVA(_h,_s,_v,_alpha);
         return color;
     }
     public static HslColor HSVToHSL(double[] c){
@@ -373,28 +478,49 @@ public class HslColor
             }
         }
     }
+    //HSB alias
+    public static HslColor HSBToHSL(double _h, double _s, double _b, double _alpha=1.0){
+        return HslColor.HSVToHSL(_h,_s,_b,_alpha);
+    }
+    public static HslColor HSBToHSL(double[] c){
+        return HslColor.HSVToHSL(c);
+    }
 
     //HSL->RGB
     public static double[] HSLToRGB(HslColor input){
-        return input.getRgba();
+        return input.getRGBA();
     }
+
     //RGB->HSL
     public static HslColor RGBToHSL(double _r, double _g, double _b, double _alpha=1.0){
         HslColor color = new HslColor();
-        color.fromRgba(_r,_g,_b,_alpha);
+        color.fromRGBA(_r,_g,_b,_alpha);
         return color;
     }
-    public static HslColor RGBToHSL(double[] c){
-        if(c.Length == 4){
-            return HslColor.RGBToHSL(c[0],c[1],c[2],c[3]);
-        }else{
-            if(c.Length == 3){
-                return HslColor.RGBToHSL(c[0],c[1],c[2]);
-            }else{
-                throw new ArgumentException("HslColor.RGBToHSL: argument must be double[4] or double[3]");
-            }
-        }
+    public static HslColor RGBToHSL(double[] _c){
+        HslColor color = new HslColor();
+        color.fromRGBA(_c);
+        return color;
     }
+
+    //HSL->sRGB
+    public double[] HSLToSRGB(HslColor _input){
+        return _input.getSRGBA();
+    }
+
+    //sRGB->HSL
+    public HslColor HSLToSRGB(double _sr, double _sg, double _sb, double _a=1.0){
+        HslColor color = new HslColor();
+        color.fromSRGBA(_sr,_sg,_sb,_a);
+        return color;
+    }
+    public HslColor HSLToSRGB(double[] _srgba){
+        HslColor color = new HslColor();
+        color.fromSRGBA(_srgba);
+        return color;
+    }
+    
+    #endregion
 
     // =============== Exceptions for the components =============================
 
@@ -418,13 +544,14 @@ public class HslColor
     // OPERATORS AND ASSIGMENTS
     // =======================================================================
 
-    // double[] = HslColor
+    // double[] a <- HslColor
     public static implicit operator double[](HslColor color) => color.toArray();
-    // HslColor = double[]
+    // HslColor a <- double[]
     public static implicit operator HslColor(double[] color){
         return new HslColor(color);
     }
 
+    //Acessor
     public double this[int index]{
         get{
             switch(index){
@@ -460,6 +587,7 @@ public class HslColor
         }
     }
 
+    //Operations
     /// <summary> Component-wise addition </summary>
     /// <param name="h1"></param>
     /// <param name="h2"></param>
