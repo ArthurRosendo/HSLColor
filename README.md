@@ -1,2 +1,2 @@
 # HslColor
-HSL color class
+HSL color C# class
