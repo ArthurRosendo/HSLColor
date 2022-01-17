@@ -162,6 +162,17 @@ public class HslColor
         return output.getLuminance();
     }
 
+    /// <summary>
+    /// Returns the inverted color, the alpha component remains unchanged
+    /// </summary>
+    /// <returns>The inverted HslColor</returns>
+    public HslColor Invert(){
+        double h = 1.0 - this.h;
+        double s = 1.0 - this.s;
+        double l = 1.0 - this.l;
+        return new HslColor(h,s,l,this.alpha);
+    }
+
     #region === sRGB ===
 
     /// <summary>
