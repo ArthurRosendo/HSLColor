@@ -124,11 +124,12 @@ public class HslColor
         double calculatedAngle;
         //All of this ensures that it works with negative angles and angles over 2pi (360 degrees)
         if(_angle < 0){
-            calculatedAngle = _angle + (2.0*Math.PI) *Math.Ceiling(Math.Abs(_angle/(2.0*Math.PI)));
+            calculatedAngle =  _angle + ( 2.0*Math.PI * Math.Ceiling(Math.Abs(_angle/(2.0*Math.PI))) );
         }else{
-            calculatedAngle = -_angle + (2.0*Math.PI) * Math.Ceiling(_angle/(2.0*Math.PI));
+            calculatedAngle = 2.0*Math.PI * (_angle/(2.0*Math.PI) - Math.Floor(_angle/(2.0*Math.PI)));   
         }
-
+        
+        
         this.h =  calculatedAngle / (2.0*Math.PI);
     }
 
@@ -429,6 +430,58 @@ public class HslColor
     }
     #endregion
 
+    #region === Bicone ===
+    
+    /// <summary>
+    /// Returns the bicone value (still in cylinder space) of this HSL color
+    /// </summary>
+    /// <returns>double[4] with bicone HSL values</returns>
+    public double[] getBicone(){
+        double[] rgba = this.getRGBA();
+        double[] rgb = {0,0,0};
+        Array.Copy(rgba,rgb,3);
+        double c = rgb.Max() - rgb.Min();
+        
+        return new HslColor(this.h,c,this.l,this.alpha);
+    }
+
+    /// <summary>
+    /// Sets from the values of a HSL bicone in cylindrical space
+    /// </summary>
+    /// <param name="_h">Hue. 0 to 1.</param>
+    /// <param name="_c">The "chroma" (Joblove and Greenberg (1978)). 0 to 1</param>
+    /// <param name="_l">The lightness. 0 to 1</param>
+    /// <param name="_alpha">(optional) Alpha. 0 to 1</param>
+    /// <returns></returns>
+    public void fromBicone(double _h, double _c, double _l, double _alpha=1.0){
+
+        if(_l == 0 || l == 1){
+            this.s = 0;
+            return;
+        }
+
+        this.h = _h;
+        this.s = _c / Math.Max(-2*Math.Abs(_l-0.5)+1, 0.0);
+        this.l = _l;
+        this.alpha = _alpha;
+    }
+
+    /// <summary>
+    /// Sets from Bicone
+    /// </summary>
+    /// <param name="_hcla">double[4] or double[3] with hue, chroma, lightness and alpha(optionally)</param>
+    public void fromBicone(double[] _hcla){
+        if( _hcla.Length == 4 ){
+            this.fromBicone(_hcla[0],_hcla[1],_hcla[2],_hcla[3]);
+        }else if( _hcla.Length == 3){
+            this.fromBicone(_hcla[0],_hcla[1],_hcla[2]);
+        }else{
+            throw new ArgumentException("Invalid argument for .fromBicone(). Argument must be double[4] or double[3].");
+        }
+
+    }
+    #endregion
+
     //=================================== STATIC =============================================
 
     /// <summary> Interpolates two HslColor together to form a new HslColor. </summary>
@@ -447,9 +500,10 @@ public class HslColor
         double na =  ha.alpha * (1.0-w) + hb.alpha * w;
 
         //Hue - angle interpolation
-        double[] hx = {  Math.Cos(ha.getHueRadians()) , Math.Sin(ha.getHueRadians())  }; 
-        double[] hy = {  Math.Cos(hb.getHueRadians()) , Math.Sin(hb.getHueRadians())  }; 
-        double[] ht = { (hx[0]+hy[0])*w , (hx[1]+hy[1])*w };
+        
+        double[] hx = {  Math.Cos(ha.getHueRadians()) , Math.Sin(ha.getHueRadians())  };
+        double[] hy = {  Math.Cos(hb.getHueRadians()) , Math.Sin(hb.getHueRadians())  };
+        double[] ht = { (hx[0]+hy[0])*w , (hx[1]+hy[1])*w }; 
         double nh = Math.Atan(ht[1]/ht[0]);
 
         //Output
