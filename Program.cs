@@ -6,7 +6,7 @@ namespace HSL
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("Hello World! All of this are just tests");
             HslColor c1 = HslColor.red;
             Console.WriteLine(c1.ToString());
 
@@ -27,8 +27,32 @@ namespace HSL
             doubleArrayOutput(red);
 
             c1.fromRGBA(red);
-            c1.getSRGBA();
+            c1 = c1.getSRGBA();
             Console.WriteLine(c1.ToString());
+
+            Console.WriteLine("");
+            HslColor testbic = new HslColor(0,0,0);
+            testbic.fromBicone(HslColor.red.getHue(), 1.0, HslColor.red.getLightness(),HslColor.red.getAlpha());
+            testbic = HslColor.interpolateHsl(testbic, HslColor.black);
+            testbic = HslColor.interpolateHsl(testbic, HslColor.black);
+            Console.Write("Testbicone: ");
+            Console.WriteLine(testbic.ToString());
+            Console.WriteLine("Ref:     "+ HslColor.interpolateHsl(HslColor.interpolateHsl(HslColor.red,HslColor.black),HslColor.black));
+
+            // HslColor c4 = HslColor.yellow;
+            // Console.WriteLine("yel = " + c4.ToString());
+            // c4 = HslColor.interpolateHsl(c4, HslColor.red);
+            // Console.WriteLine("orange = " + c4.ToString());
+            // c4 = HslColor.interpolateHsl(c4, HslColor.black);
+            // Console.WriteLine("brown = " + c4.ToString());
+            // Console.Write("Bicone test = ");
+            // doubleArrayOutput( c4.getBicone());
+
+            // HslColor radianTest = HslColor.black;
+            // radianTest.setHueAngleRadians(6*Math.PI+Math.PI/2); //90 = 0.25
+            // Console.WriteLine("0.25 = " +radianTest.ToString());
+            // radianTest.setHueAngleRadians((-6*Math.PI-Math.PI/2)); //270 = 0.75
+            // Console.WriteLine("0.75 = " +radianTest.ToString());
 
             return;
         }
