@@ -6,6 +6,7 @@ namespace HSL
     {
         static void Main(string[] args)
         {
+            
             Console.WriteLine("Hello World! All of this are just tests");
             HslColor c1 = HslColor.red;
             Console.WriteLine(c1.ToString());
