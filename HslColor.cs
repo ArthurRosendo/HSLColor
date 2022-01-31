@@ -484,6 +484,26 @@ public class HslColor
 
     //=================================== STATIC =============================================
 
+    public static HslColor random(){
+        Random rng = new Random();
+        HslColor output = new HslColor();
+        //The reason I use RGB is to simplify the random operation since HSL allows more than 1 set of component values per color (eg.: HSL[0,0,0] and HSL[0,1,0] are both black)
+        output.fromRGBA(NextDouble01(),NextDouble01(),NextDouble01());
+        return output;
+    }
+
+    /// <summary>
+    /// Returns a random number between 0 and 1 inclusively
+    /// </summary>
+    /// <returns>Double between 0 and 1 inclusively</returns>
+    protected static double NextDouble01()
+    {
+        Random rand = new Random();
+        double minimum = 0;
+        double maximum = 1.0000000004656612873077392578125; //This is a hack to make the range inclusively
+        return rand.NextDouble() * (maximum - minimum) + minimum;
+    }
+
     /// <summary> Interpolates two HslColor together to form a new HslColor. </summary>
     /// <param name="ha">The first color</param>
     /// <param name="hb">The second color</param>
