@@ -1,6 +1,6 @@
 # HslColor
-[EN]
+[EN]  
 HSL color C# class
 
-[PT-BR]
+[PT-BR]  
 Classe de cor HSL
