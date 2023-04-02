@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 /// <summary>
 /// Class that represent a HSL color with an alpha component
