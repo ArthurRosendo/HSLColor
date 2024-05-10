@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace HSL
 {
@@ -14,7 +14,7 @@ namespace HSL
             HslColor c2 = HslColor.white;
             Console.WriteLine(c2.ToString());
 
-            HslColor c3 = HslColor.interpolateHsl(c1,c2,0.75);
+            HslColor c3 = HslColor.InterpolateHsl(c1,c2,0.75);
             Console.WriteLine(c3.ToString());
 
             double[] xa = HslColor.red;
@@ -27,18 +27,18 @@ namespace HSL
             double[] red = HslColor.HSLToRGB(c1);
             doubleArrayOutput(red);
 
-            c1.fromRGBA(red);
-            c1 = c1.getSRGBA();
+            c1.FromRGBA(red);
+            c1 = c1.GetSRGBA();
             Console.WriteLine(c1.ToString());
 
             Console.WriteLine("");
             HslColor testbic = new HslColor(0,0,0);
-            testbic.fromBicone(HslColor.red.getHue(), 1.0, HslColor.red.getLightness(),HslColor.red.getAlpha());
-            testbic = HslColor.interpolateHsl(testbic, HslColor.black);
-            testbic = HslColor.interpolateHsl(testbic, HslColor.black);
+            testbic.FromBicone(HslColor.red.GetHue(), 1.0, HslColor.red.GetLightness(),HslColor.red.GetAlpha());
+            testbic = HslColor.InterpolateHsl(testbic, HslColor.black);
+            testbic = HslColor.InterpolateHsl(testbic, HslColor.black);
             Console.Write("Testbicone: ");
             Console.WriteLine(testbic.ToString());
-            Console.WriteLine("Ref:     "+ HslColor.interpolateHsl(HslColor.interpolateHsl(HslColor.red,HslColor.black),HslColor.black));
+            Console.WriteLine("Ref:     "+ HslColor.InterpolateHsl(HslColor.InterpolateHsl(HslColor.red,HslColor.black),HslColor.black));
 
             // HslColor c4 = HslColor.yellow;
             // Console.WriteLine("yel = " + c4.ToString());
